@@ -1,7 +1,62 @@
 // Toggle mobile menu
 document.addEventListener("DOMContentLoaded", function () {
+  const THEME_STORAGE_KEY = "alaa-theme";
+  const root = document.documentElement;
   const toggleButton = document.querySelector(".navbar .mobile-menu-toggle");
   const mobileMenu = document.querySelector(".navbar .mobile-menu-items");
+  const themeToggle = document.querySelector(".theme-toggle");
+
+  // Theme helpers ---------------------------------------------------------
+  const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
+
+  const getStoredTheme = () => localStorage.getItem(THEME_STORAGE_KEY);
+
+  const resolvePreferredTheme = () => {
+    const stored = getStoredTheme();
+    if (stored === "dark" || stored === "light") return stored;
+    return prefersDarkScheme.matches ? "dark" : "light";
+  };
+
+  const syncToggleState = (theme) => {
+    if (!themeToggle) return;
+    themeToggle.setAttribute(
+      "aria-pressed",
+      theme === "dark" ? "true" : "false"
+    );
+    themeToggle.setAttribute(
+      "aria-label",
+      theme === "dark" ? "Switch to light mode" : "Switch to dark mode"
+    );
+  };
+
+  const applyTheme = (theme) => {
+    root.setAttribute("data-theme", theme);
+    syncToggleState(theme);
+  };
+
+  // Initialize theme based on stored value or system preference
+  applyTheme(resolvePreferredTheme());
+
+  // Toggle handler: persist choice and update UI
+  themeToggle?.addEventListener("click", () => {
+    const current =
+      root.getAttribute("data-theme") === "dark" ? "dark" : "light";
+    const next = current === "dark" ? "light" : "dark";
+    applyTheme(next);
+    localStorage.setItem(THEME_STORAGE_KEY, next);
+  });
+
+  // Respect system preference changes when user has no manual override
+  const handleSystemThemeChange = (event) => {
+    if (getStoredTheme()) return;
+    applyTheme(event.matches ? "dark" : "light");
+  };
+
+  if (prefersDarkScheme.addEventListener) {
+    prefersDarkScheme.addEventListener("change", handleSystemThemeChange);
+  } else if (prefersDarkScheme.addListener) {
+    prefersDarkScheme.addListener(handleSystemThemeChange);
+  }
 
   toggleButton.addEventListener("click", function () {
     mobileMenu.classList.toggle("active");
