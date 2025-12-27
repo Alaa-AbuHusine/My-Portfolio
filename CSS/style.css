@@ -906,8 +906,6 @@ ul {
   }
 }
 
-
-
 /* Tablet Responsive (768px - 1024px) */
 @media (max-width: 1024px) {
   .contact {
@@ -1226,6 +1224,7 @@ ul {
 
   .social-btn {
     display: flex;
+    justify-content: center;
     padding: 0.75rem;
     font-size: 0.9rem;
   }
